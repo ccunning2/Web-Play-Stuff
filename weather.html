@@ -45,12 +45,13 @@
 <body>
     <div id="main">
         <div class="card text-center card_custom" id="main_card" style="width: 20rem;">
-            <img class="card-img-top" src="..." alt="Card image cap">
+            <img class="card-img-top" alt="Card image cap">
             <div class="card-block">
                 <h4 class="card-title"></h4>
                 <p class="card-text">Current Temperature in <span id="location"></span></p>
                 <p class="card-text" id="obs_time"></p>
             </div>
+            <div id="toggle" class="btn btn-primary">Toggle Temperature Scale</div>
             <ul class="list-group list-group-flush card_custom">
                 <li id="feels_like" class="list-group-item"></li>
                 <li id="rel_humid" class="list-group-item"></li>
@@ -69,6 +70,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script>
+        var temper = {};
+        var celsius = false;
+
+        function toggleTemp() {
+            celsius = !celsius;
+            if (celsius) {
+                $('.card-title').html(temper.temp_c + " C");
+                $('#feels_like').html("Feels Like: " + temper.feels_like_c + " C");
+            } else {
+                $('.card-title').html(temper.temp_f + " F");
+                $('#feels_like').html("Feels Like: " + temper.feels_like_f + " F");
+            }
+        }
+
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -83,22 +98,28 @@
 
         function getWeatherData(latitude, longitude) {
             $.ajax({
-                url: "http://api.wunderground.com/api/{{api_key_here}}/geolookup/conditions/q/" + latitude + "," + longitude + ".json",
+                url: "http://api.wunderground.com/api/b622d5eb1f4be777/geolookup/conditions/q/" + latitude + "," + longitude + ".json",
                 dataType: "jsonp",
                 success: function(parsed_json) {
                     var location = parsed_json['location']['city'];
                     var temp_f = parsed_json['current_observation']['temp_f'];
+                    var temp_c = parsed_json['current_observation']['temp_c'];
                     var image_location = parsed_json['current_observation']['icon_url'];
-                    var feels_like = parsed_json['current_observation']['feelslike_f'];
+                    var feels_like_f = parsed_json['current_observation']['feelslike_f'];
+                    var feels_like_c = parsed_json['current_observation']['feelslike_c'];
                     var forecast_url = parsed_json['current_observation']['forecast_url'];
                     var observation_time = parsed_json['current_observation']['observation_time'];
                     var relative_humidity = parsed_json['current_observation']['relative_humidity'];
                     var wind_string = parsed_json['current_observation']['wind_string'];
+                    temper.temp_f = temp_f;
+                    temper.temp_c = temp_c;
+                    temper.feels_like_c = feels_like_c;
+                    temper.feels_like_f = feels_like_f;
                     $('.card-title').html(temp_f + " F");
                     $('#location').html(location);
                     $('#obs_time').html(observation_time);
                     $('#wind').html("Wind: " + wind_string);
-                    $('#feels_like').html("Feels Like: " + feels_like + " F");
+                    $('#feels_like').html("Feels Like: " + feels_like_f + " F");
                     $('#rel_humid').html("Relative Humidity: " + relative_humidity);
                     $('.card-img-top').attr('src', image_location);
                     $('.card-link').attr('href', forecast_url);
@@ -109,7 +130,7 @@
 
         $('document').ready(function() {
             getLocation();
-
+            $('#toggle').on("click", toggleTemp);
         });
     </script>
 </body>
