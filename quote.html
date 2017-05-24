@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Quote Machine</title>
+    <style>
+        .background {
+            background-color: dodgerblue;
+            min-height: 100vh;
+            padding-top: 15%;
+        }
+
+    </style>
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+
+</head>
+
+<body>
+    <div class="background">
+        <div class="container-fluid" style="height:100%;">
+            <div class="row text-center">
+                <div class="col-xs-12">
+                    <h1>The Quote Machine</h1>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="well col-xs-10 col-xs-offset-1">
+                    <blockquote>
+                        <p id="quote"></p>
+                        <footer id="author"> </footer>
+                    </blockquote>
+                </div>
+            </div>
+            <div class="text-center">
+                <div id="get_quote" class="btn btn-primary">New Quote</div>
+                <a id="tweet" href="" class="btn btn-info">Tweet</a>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script>
+        function getQuote() {
+            $.ajax({
+                url: 'https://andruxnet-random-famous-quotes.p.mashape.com', // The URL to the API. You can get this by clicking on "Show CURL example" from an API profile
+                type: 'POST', // The HTTP Method
+                data: {
+                    "cat": "famous"
+                }, // Additional parameters here
+                datatype: 'json',
+                success: function(data) {
+                    //alert(JSON.stringify(data));
+                    console.log(data);
+                    console.log(data["quote"]);
+                    $('#quote').html(data.quote);
+                    $('#author').html(data.author);
+                    $('#tweet').attr("href", "https://twitter.com/intent/tweet?text=" + data.quote + " -" + data.author)
+                },
+                error: function(err) {
+                    alert(err);
+                },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-Mashape-Authorization", "kPt3FR23KvmshYKUQXYGUyp1YvZCp1ZMxukjsnbBwhsFxsf5sT");
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            getQuote();
+
+            $('#get_quote').on("click", getQuote);
+
+        });
+
+    </script>
+</body>
+
+</html>
