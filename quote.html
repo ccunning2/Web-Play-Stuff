@@ -57,8 +57,6 @@
                 datatype: 'json',
                 success: function(data) {
                     //alert(JSON.stringify(data));
-                    console.log(data);
-                    console.log(data["quote"]);
                     $('#quote').html(data.quote);
                     $('#author').html(data.author);
                     $('#tweet').attr("href", "https://twitter.com/intent/tweet?text=" + data.quote + " -" + data.author)
@@ -67,7 +65,7 @@
                     alert(err);
                 },
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-Mashape-Authorization", "kPt3FR23KvmshYKUQXYGUyp1YvZCp1ZMxukjsnbBwhsFxsf5sT");
+                    xhr.setRequestHeader("X-Mashape-Authorization", "{{api_key_here}}");
                 }
             });
         }

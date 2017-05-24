@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Local Weather</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <style>
+        #main {
+            min-height: 100vh;
+            background-image: url(img/weather_back.jpg);
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+        }
+        
+        .card_custom {
+            background-color: rgb(0, 0, 59);
+            color: skyblue
+        }
+        
+        #main_card {
+            position: relative;
+            margin: 0 auto;
+            top: 100px;
+        }
+        
+        .card-img-top {
+            max-width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        
+        .list-group-item {
+            background-color: rgb(0, 0, 59);
+            color: skyblue;
+            border: 1.5px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div class="card text-center card_custom" id="main_card" style="width: 20rem;">
+            <img class="card-img-top" src="..." alt="Card image cap">
+            <div class="card-block">
+                <h4 class="card-title"></h4>
+                <p class="card-text">Current Temperature in <span id="location"></span></p>
+                <p class="card-text" id="obs_time"></p>
+            </div>
+            <ul class="list-group list-group-flush card_custom">
+                <li id="feels_like" class="list-group-item"></li>
+                <li id="rel_humid" class="list-group-item"></li>
+                <li id="wind" class="list-group-item"></li>
+            </ul>
+            <div class="card-block">
+                <a href="#" class="card-link">Forecast</a>
+
+            </div>
+        </div>
+
+
+    </div>
+    <!-- Third Party Stuff Below-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    getWeatherData(position.coords.latitude, position.coords.longitude);
+                });
+
+
+            } else {
+                //x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function getWeatherData(latitude, longitude) {
+            $.ajax({
+                url: "http://api.wunderground.com/api/{{api_key_here}}/geolookup/conditions/q/" + latitude + "," + longitude + ".json",
+                dataType: "jsonp",
+                success: function(parsed_json) {
+                    var location = parsed_json['location']['city'];
+                    var temp_f = parsed_json['current_observation']['temp_f'];
+                    var image_location = parsed_json['current_observation']['icon_url'];
+                    var feels_like = parsed_json['current_observation']['feelslike_f'];
+                    var forecast_url = parsed_json['current_observation']['forecast_url'];
+                    var observation_time = parsed_json['current_observation']['observation_time'];
+                    var relative_humidity = parsed_json['current_observation']['relative_humidity'];
+                    var wind_string = parsed_json['current_observation']['wind_string'];
+                    $('.card-title').html(temp_f + " F");
+                    $('#location').html(location);
+                    $('#obs_time').html(observation_time);
+                    $('#wind').html("Wind: " + wind_string);
+                    $('#feels_like').html("Feels Like: " + feels_like + " F");
+                    $('#rel_humid').html("Relative Humidity: " + relative_humidity);
+                    $('.card-img-top').attr('src', image_location);
+                    $('.card-link').attr('href', forecast_url);
+                    //console.log(parsed_json);
+                }
+            });
+        }
+
+        $('document').ready(function() {
+            getLocation();
+
+        });
+    </script>
+</body>
+
+</html>
