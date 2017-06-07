@@ -1,0 +1,159 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wikipedia Portal</title>
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: black;
+        }
+        
+        .main {
+            height: 100vw;
+            background-color: black;
+        }
+        
+        .search {
+            font-size: 5vw;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .min-search {
+            width: 10px;
+            border-radius: 10px;
+            visibility: hidden;
+        }
+        
+        .headline {
+            color: azure;
+        }
+        
+        .middle {
+            margin-top: 25px;
+        }
+        
+        #search-form {
+            display: none;
+        }
+        
+        #X {
+            display: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="container main">
+        <div id="replaceMe">
+            <div class="row text-center headline">
+                <h1>Wikipedia<br> Search</h1>
+            </div>
+            <br><br><br>
+            <div class="row text-center headline">
+                <h2><a href="https://en.wikipedia.org/wiki/Special:Random">Click Here for a Random Entry</a></h2> <br>
+            </div>
+        </div>
+        <div class="row text-center headline" style="height: 85px;" id="searchRow">
+            <div class="search"><span class="glyphicon glyphicon-search" id="mag-glass"></span>
+                <!--                <input class="min-search" type="text">-->
+            </div>
+            <form class="form-inline" id="search-form">
+                <div class="form-group">
+                    <label class="sr-only" for="wiki-search">Search for a Wikipedia entry</label>
+                    <div class="input-group middle">
+                        <input type="text" class="form-control" id="wiki-search" placeholder="Enter Wikipedia Query">
+                        <span class="input-group-btn">
+        <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search" style="font-size:20;"></span></button>
+                        <button class="btn btn-default" id="X"><span class="glyphicon glyphicon-remove" style="font-size:20;"></span></button>
+                        </span>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row text-center headline" id="help">
+            <h3>Click the Magnifiying Glass to Search</h3>
+        </div>
+        <div class="wiki-data"></div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script>
+        function displayWikiData(title, url, extract) {
+            let newDiv = '<div class="panel panel-info wikidata">' + '<div class="panel-heading">' + '<h3 class="panel-title">' + title + '</h3> </div>' +
+                '<div class="panel-body">' + extract + '</div>' +
+                '<div class="panel-footer"> <a href="' + url + '"> Link to ' + title + ' Wikipedia Entry</a></div>';
+            $('.wiki-data').append(newDiv);
+        }
+
+        function wikiQuery(query) {
+            let mainUrl = "https://en.wikipedia.org/";
+            let queryUrl = "/w/api.php?action=query&format=json&prop=extracts%7Cinfo&list=&titles=&generator=allpages&exsentences=3&exintro=1&inprop=url%7Cdisplaytitle&gapfrom=*****&gapnamespace=0&gaplimit=10";
+
+            let realUrl = mainUrl + queryUrl.replace("*****", query);
+
+            $.ajax({
+                url: realUrl,
+                dataType: 'jsonp',
+                type: 'POST',
+                headers: {
+                    'Api-User-Agent': 'MyTest/1.0'
+                },
+                success: function(data) {
+                    let pages = data['query']['pages'];
+                    console.log(JSON.stringify(pages));
+                    for (var page in pages) {
+                        let title = pages[page]['title'];
+                        let fullurl = pages[page]['fullurl'];
+                        let extract = pages[page]['extract'];
+                        displayWikiData(title, fullurl, extract);
+                    }
+                }
+            });
+        }
+
+        $('document').ready(function() {
+            $('#mag-glass').on("click", function() {
+                $('#mag-glass').toggle();
+                $('#help').remove();
+                $('#search-form').toggle("bounce", {
+                    distance: 25,
+                    times: 3
+                }, 900);
+            });
+
+            $('#search-form').submit(function(event) {
+                event.preventDefault();
+                $('.wiki-data').empty();
+                var queryText = $('#wiki-search').val();
+                if (queryText === "") {
+                    return;
+                }
+                // var searchForm = $('#searchRow')
+                $("#replaceMe").slideUp();
+                $("#X").show();
+                wikiQuery(queryText);
+            });
+
+            $('#X').on("click", function() {
+                $('#wiki-search').val("");
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>
